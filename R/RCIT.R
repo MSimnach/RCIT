@@ -97,7 +97,7 @@ RCIT <- function(x,y,z=NULL,approx="lpd4",num_fz=100,num_fx=100,num_fy=5, seed=N
     res_x = f_x-e_x_z;
     res_y = f_y-e_y_z;
 
-    if (num_f2==1){
+    if (num_fy==1){
       approx="hbe"
     }
 
