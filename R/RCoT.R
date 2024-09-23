@@ -8,8 +8,9 @@
 #' "hbe" for the Hall-Buckley-Eagleson method,
 #' "chi2" for a normalized chi-squared statistic,
 #' "perm" for permutation testing (warning: this one is slow but recommended for small samples generally <500 )
-#' @param num_f Number of features for conditioning set. Default is 25.
-#' @param num_f2 Number of features for non-conditioning sets. Default is 5.
+#' @param num_fz Number of features for conditioning set z. Default is 100.
+#' @param num_fx Number of features for non-conditioning variable x. Default is 100.
+#' @param num_fy Number of features for non-conditioning variable y. Default is 5.
 #' @param seed The seed for controlling random number generation. Use if you want to replicate results exactly. Default is NULL.
 #' @return A list containing the p-value \code{p} and statistic \code{Sta}
 #' @export
@@ -22,8 +23,8 @@
 #' RCIT(x,y,z,seed=2);
 
 
-RCoT <- function(x,y,z=NULL,approx="lpd4",num_f=100,num_f2=5,seed=NULL){
-  
+RCoT <- function(x,y,z=NULL,approx="lpd4",num_fz=100,num_fx=100,num_fy=5,seed=NULL){
+
   if (length(z)==0){
     out=RIT(x,y,approx=approx,seed=seed);
     return(out)
@@ -54,7 +55,7 @@ RCoT <- function(x,y,z=NULL,approx="lpd4",num_f=100,num_f2=5,seed=NULL){
     x=normalize(x);
     y=normalize(y);
     z=normalize(z);
-    
+
     #for (t in seq_len(ncol(x))){
     #  x[,t] = pnorm(ecdf(x[,t])(x[,t]));
     #}
@@ -64,11 +65,11 @@ RCoT <- function(x,y,z=NULL,approx="lpd4",num_f=100,num_f2=5,seed=NULL){
     #for (t in seq_len(d)){
     #  z[,t] = pnorm(ecdf(z[,t])(z[,t]));
     #}
+    num_fz = num_fz*ncol(z)
 
-
-    four_z = random_fourier_features(z[,1:d],num_f=num_f,sigma=median(c(t(dist(z[1:r1,])))), seed = seed );
-    four_x = random_fourier_features(x,num_f=num_f2,sigma=median(c(t(dist(x[1:r1,])))), seed = seed );
-    four_y = random_fourier_features(y,num_f=num_f2,sigma=median(c(t(dist(y[1:r1,])))), seed = seed );
+    four_z = random_fourier_features(z[,1:d],num_f=num_fz,sigma=median(c(t(dist(z[1:r1,])))), seed = seed );
+    four_x = random_fourier_features(x,num_f=num_fx,sigma=median(c(t(dist(x[1:r1,])))), seed = seed );
+    four_y = random_fourier_features(y,num_f=num_fy,sigma=median(c(t(dist(y[1:r1,])))), seed = seed );
 
     f_x=normalize(four_x$feat);
     f_y=normalize(four_y$feat);
@@ -78,8 +79,8 @@ RCoT <- function(x,y,z=NULL,approx="lpd4",num_f=100,num_f2=5,seed=NULL){
 
     Czz = cov(f_z);
 
-    i_Czz = chol2inv(chol( Czz + diag(num_f) * 1e-10))
-   # i_Czz = ginv(Czz+diag(num_f)*1E-10); #requires library(MASS)
+    i_Czz = chol2inv(chol( Czz + diag(num_fz) * 1e-10))
+   # i_Czz = ginv(Czz+diag(num_fz)*1E-10); #requires library(MASS)
     Cxz=cov(f_x,f_z);
     Czy=cov(f_z,f_y);
 
@@ -92,7 +93,7 @@ RCoT <- function(x,y,z=NULL,approx="lpd4",num_f=100,num_f2=5,seed=NULL){
     res_x = f_x-e_x_z;
     res_y = f_y-e_y_z;
 
-    if (num_f2==1){
+    if (num_fy==1){
       approx="hbe"
     }
 
@@ -154,5 +155,5 @@ RCoT <- function(x,y,z=NULL,approx="lpd4",num_f=100,num_f2=5,seed=NULL){
     out=list(p=p,Sta=Sta);
     return(out)
   }
-  
+
 }
