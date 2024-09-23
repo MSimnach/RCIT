@@ -69,6 +69,7 @@ RCIT <- function(x,y,z=NULL,approx="lpd4",num_fz=100,num_fx=100,num_fy=5, seed=N
 
     y = cbind(y,z)
 
+    num_fz = num_fz*ncol(z)
 
     four_z = random_fourier_features(z[,1:d],num_f=num_fz,sigma=median(c(t(dist(z[1:r1,])))), seed = seed );
     four_x = random_fourier_features(x,num_f=num_fx,sigma=median(c(t(dist(x[1:r1,])))), seed = seed );
