@@ -65,7 +65,7 @@ RCoT <- function(x,y,z=NULL,approx="lpd4",num_fz=100,num_fx=100,num_fy=5,seed=NU
     #for (t in seq_len(d)){
     #  z[,t] = pnorm(ecdf(z[,t])(z[,t]));
     #}
-    num_fz = num_fz*ncol(z)
+    num_fz = num_fz*d*floor(sqrt(num_fx*num_fy))
 
     four_z = random_fourier_features(z[,1:d],num_f=num_fz,sigma=median(c(t(dist(z[1:r1,])))), seed = seed );
     four_x = random_fourier_features(x,num_f=num_fx,sigma=median(c(t(dist(x[1:r1,])))), seed = seed );
